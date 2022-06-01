@@ -1,0 +1,2 @@
+Streptomyces coelicolor M1154
+Streptomyces coelicolor A3(2) R4-mCherry
