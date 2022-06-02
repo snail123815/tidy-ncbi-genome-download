@@ -2,8 +2,6 @@ import argparse
 import subprocess
 import pandas as pd
 import os
-import gzip
-from Bio import SeqIO
 
 def removeEqu(names):
     newNames = [removeDup(n) for n in names]
@@ -52,7 +50,7 @@ def processArgs():
 def getNumCtgs(file):
     ext = file.split(".")[-2]
     faFmts = ['fna', 'fa', 'faa']
-    gbFmts = ['gbff','gb']
+    gbFmts = ['gbff', 'gb', 'gbk', 'gpff']
     if ext in faFmts:
         return int(
             subprocess.check_output(
@@ -61,8 +59,12 @@ def getNumCtgs(file):
             ).decode().strip()
         )
     elif ext in gbFmts:
-        with gzip.open(file, 'rt') as handle:
-            return len([SeqIO.parse(handle, 'genbank')])
+        return int(
+            subprocess.check_output(
+                f"gzip -cd {file} | grep \"LOCUS       \" | wc -l",
+                shell=True
+            ).decode().strip()
+        )
     else:
         raise Exception(f'File format not known: {file}, should be one of {faFmts + gbFmts}')
 

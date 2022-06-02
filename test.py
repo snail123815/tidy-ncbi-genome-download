@@ -1,10 +1,11 @@
 import unittest
+import os
 
-from main import removeDup, removeEqu
+from main import getNumCtgs, removeDup, removeEqu
 
 class Test_strainNameComprehension(unittest.TestCase):
     def setUp(self) -> None:
-        from main import removeDup, removeEqu
+        from main import removeDup, removeEqu, getNumCtgs
         return super().setUp()
     
     def test_removeEqu(self):
@@ -48,6 +49,20 @@ class Test_strainNameComprehension(unittest.TestCase):
         ]
         for s, r in zip(sources, results):
             self.assertEqual(removeDup(s), r)
+    
+    def test_countCtgs(self):
+        testDataDir = 'test_data/numCtgs'
+        files = [
+            "test.fna.gz",
+            "test.gpff.gz"
+        ]
+        ns = [
+            3,
+            27
+        ]
+        for f, n in zip(files, ns):
+            f = os.path.join(testDataDir, f)
+            self.assertEqual(getNumCtgs(f), n)
 
 if __name__ == "__main__":
     unittest.main()
