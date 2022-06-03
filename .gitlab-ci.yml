@@ -29,5 +29,5 @@ unit-test:
   artifacts:
     reports:
       coverage_report:
-        coverage_format: xml
+        coverage_format: cobertura
         path: coverage.xml
