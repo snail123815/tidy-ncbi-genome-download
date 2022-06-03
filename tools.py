@@ -71,10 +71,7 @@ def getInfoFrom(args):
         # some strain name are duplicated in orgnism name
         names = f'{org} {strain}'.split(' ')
         org = " ".join(names[:2])
-        try:
-            strain = removeDup(" ".join(names[2:]))
-        except RecursionError:
-            print(" ".join(names))
+        strain = removeDup(" ".join(names[2:]))
         name = f'{org} {strain}'
 
         filePath = os.path.join(args.dir,
