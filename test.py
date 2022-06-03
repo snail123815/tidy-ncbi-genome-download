@@ -1,11 +1,10 @@
 import unittest
 import os
 
-from main import getNumCtgs, removeDup, removeEqu
+from tools import removeDup, removeEqu, getNumCtgs
 
 class Test_strainNameComprehension(unittest.TestCase):
     def setUp(self) -> None:
-        from main import removeDup, removeEqu, getNumCtgs
         return super().setUp()
     
     def test_removeEqu(self):
