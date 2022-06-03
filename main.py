@@ -2,6 +2,7 @@ import argparse
 import subprocess
 import pandas as pd
 import os
+from tqdm import tqdm
 
 def removeEqu(names):
     newNames = [removeDup(n) for n in names]
@@ -114,16 +115,17 @@ def main():
             strains[name][acc] = data
 
     # Classify data and store
-    validAssemblies = {} # store target genome info
-    excludedAccs = [] # store excluded (by input) accessions: [["strain", "acc"], ["strain", "acc"]...]
+    validAssemblies = {} # store target genome info [(acc, {data..}), (acc, {data...}), ...]
+    excludedAccs = [] # store excluded (by input) accessions: [("strain", "acc"), ("strain", "acc")...]
     skippedAccs  = [] # store accessions that are not the best for one strain name
+    tooManyContigs = [] # store genomes that have too many contigs (if --maxCtg is set)
 
     for s in strains:
         inEx = False
         for ex in exclusions:
             if ex in s:
                 inEx = True
-                excludedAccs.extend([[s, acc] for acc in strains[s]])
+                excludedAccs.extend([(s, acc) for acc in strains[s]])
                 break
         if inEx: continue
         """Assembly level - the highest level of assembly for any object in the assembly:
@@ -133,13 +135,13 @@ def main():
         Contig - nothing is assembled beyond the level of sequence contigs"""
 
         if len(strains[s])>1:
-            complete   = [[acc,strains[s][acc]] for acc in strains[s] if \
+            complete   = [(acc,strains[s][acc]) for acc in strains[s] if \
                 strains[s][acc]['assembly_level'] == 'Complete Genome']
-            chromosome = [[acc,strains[s][acc]] for acc in strains[s] if \
+            chromosome = [(acc,strains[s][acc]) for acc in strains[s] if \
                 strains[s][acc]['assembly_level'] == 'Chromosome']
-            scaffold   = [[acc,strains[s][acc]] for acc in strains[s] if \
+            scaffold   = [(acc,strains[s][acc]) for acc in strains[s] if \
                 strains[s][acc]['assembly_level'] == 'Scaffold']
-            contig     = [[acc,strains[s][acc]] for acc in strains[s] if \
+            contig     = [(acc,strains[s][acc]) for acc in strains[s] if \
                 strains[s][acc]['assembly_level'] == 'Contig']
 
             assert len(complete + chromosome + scaffold + contig) == len(strains[s])
@@ -152,22 +154,25 @@ def main():
             sortedAssemblies = (complete + chromosome + scaffold + contig)
             topAssembly = sortedAssemblies[0]
             validAssemblies[s] = topAssembly
-            skippedAccs.extend([[s, ass[0]] for ass in sortedAssemblies[1:]])
+            skippedAccs.extend([(s, ass[0]) for ass in sortedAssemblies[1:]])
         else:
             validAssemblies[s] = strains[s].popitem()
     
+
     # Filter base on genome quality
     if not args.maxCtg is None:
-        for name in validAssemblies:
+        print(f'Checking contig number of {len(validAssemblies)} sequences.')
+        print(f'"Complete Genome" and "chromosome" level assembly will be skipped.')
+        allKeys = list(validAssemblies.keys())
+        for name in tqdm(allKeys):
             acc, assemblyData = validAssemblies[name]
             assemblyLevel = assemblyData['assembly_level']
             if assemblyLevel in ['Complete Genome', 'Chromosome']:
                 continue
             n = getNumCtgs(assemblyData['local_filename'])
             if n > args.maxCtg:
-                print(name, n)
-                print(validAssemblies[name])
-                break
+                tooManyContigs.append((name, validAssemblies.pop(name)[0]))
+
 
 if __name__ == "__main__":
     main()
