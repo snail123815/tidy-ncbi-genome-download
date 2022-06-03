@@ -34,6 +34,7 @@ class Test_strainNameComprehension(unittest.TestCase):
             "M1154/pAMX4/pGP1416",
             "M1154 M1154",
             "C34 = DSM 42122 = NRRL B-24963",
+            ""
         ]
         results = [
             "MA-4680 NBRC 14893",
@@ -45,6 +46,7 @@ class Test_strainNameComprehension(unittest.TestCase):
             "M1154/pAMX4/pGP1416",
             "M1154",
             "C34 DSM 42122 NRRL B-24963",
+            ""
         ]
         for s, r in zip(sources, results):
             self.assertEqual(removeDup(s), r)
@@ -62,6 +64,7 @@ class Test_strainNameComprehension(unittest.TestCase):
         for f, n in zip(files, ns):
             f = os.path.join(testDataDir, f)
             self.assertEqual(getNumCtgs(f), n)
+        self.assertRaises(Exception, getNumCtgs, "abc.kk.gz")
 
 if __name__ == "__main__":
     unittest.main()
