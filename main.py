@@ -1,6 +1,7 @@
 import argparse
+import os
 
-from tools import getInfoFrom, getExclusion, filterDownloads
+from tools import getInfoFrom, getExclusion, filterDownloads, gatherAssemblies
 
 def processArgs():
     parser = argparse.ArgumentParser()
@@ -10,6 +11,9 @@ def processArgs():
                         default="")
     parser.add_argument('--maxCtg', type=int,
                         help="Maximum number of contigs that a genome will be kept.",
+                        default=None)
+    parser.add_argument('--targetDir', type=str,
+                        help='Valid assemblies will be copied to this directory.',
                         default=None)
     args = parser.parse_args()
     return args
@@ -21,6 +25,12 @@ def main():
     exclusions = getExclusion(args.excludeList)
     validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
         filterDownloads(strains, exclusions, args.maxCtg)
+
+    if args.targetDir is None:
+        targetDir = os.path.realpath(args.dir) + "-ready"
+    else: targetDir =  args.targetDir
+    gatherAssemblies(validAssemblies, targetDir)
+
 
 if __name__ == "__main__":
     main()

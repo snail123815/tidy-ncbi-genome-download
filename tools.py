@@ -2,6 +2,7 @@ import subprocess
 import os
 from tqdm import tqdm
 import pandas as pd
+import shutil
 
 def removeEqu(names):
     newNames = [removeDup(n) for n in names]
@@ -158,3 +159,11 @@ def filterDownloads(strains, exclusions, maxCtg):
     validAssemblies, tooManyContigs = filterTooManyCtgs(validAssemblies, maxCtg, tooManyContigs)
     
     return validAssemblies, excludedAccs, skippedAccs, tooManyContigs
+
+def gatherAssemblies(validAssemblies, targetDir):
+    for name in validAssemblies:
+        fp = validAssemblies[name][1]['local_filename']
+        os.makedirs(targetDir, exist_ok=True)
+        t = os.path.join(targetDir, os.path.split(fp)[1])
+        shutil.copy(fp, t)
+    return os.listdir(targetDir)

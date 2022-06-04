@@ -1,10 +1,10 @@
-from codecs import getincrementaldecoder
 import unittest
 import os
+import shutil
 from collections import namedtuple
 
 from tools import getInfoFrom, removeDup, removeEqu, getNumCtgs, \
-    getExclusion, filterDownloads, filterTooManyCtgs
+    getExclusion, filterDownloads, filterTooManyCtgs, gatherAssemblies
 
 class Test_strainNameComprehension(unittest.TestCase):
     def setUp(self) -> None:
@@ -127,7 +127,28 @@ class Test_strainNameComprehension(unittest.TestCase):
         for s in validAssemblies:
             vas.append((s, validAssemblies[s][0]))
         self.assertSetEqual(strainAccs, set(vas))
-        
+
+    def test_gatherAssemblies(self):
+        # for name in validAssemblies:
+        #     print(f'"{name}": ("{validAssemblies[name][0]}", self.strains["{name}"]["{validAssemblies[name][0]}"]),')
+        validAssemblies = {
+            "Streptomyces specialis GW41-1564": ("GCF_001493375.1", self.strains["Streptomyces specialis GW41-1564"]["GCF_001493375.1"]),
+            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": ("GCF_001013905.1", self.strains["Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963"]["GCF_001013905.1"]),
+            "Streptomyces avermitilis MA-4680 NBRC 14893": ("GCF_000009765.2", self.strains["Streptomyces avermitilis MA-4680 NBRC 14893"]["GCF_000009765.2"]),
+            "Streptomyces albidoflavus J1074": ("GCF_000359525.1", self.strains["Streptomyces albidoflavus J1074"]["GCF_000359525.1"]),
+        }
+        targetFilesCorrect = [
+            'GCF_001493375.1_Streptomyces_specialis_genomic.fna.gz',
+            'GCF_001013905.1_sleC34_genomic.fna.gz',
+            'GCF_000009765.2_ASM976v2_genomic.fna.gz',
+            'GCF_000359525.1_ASM35952v1_genomic.fna.gz'
+        ]
+        targetDir = self.args.dir + '-ready'
+        targetFiles = gatherAssemblies(validAssemblies,targetDir)
+        self.assertSetEqual(set(targetFiles), set(os.listdir(targetDir)))
+        self.assertSetEqual(set(targetFilesCorrect), set(os.listdir(targetDir)))
+        shutil.rmtree(targetDir)
+
 
 
 if __name__ == "__main__":
