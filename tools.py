@@ -18,7 +18,7 @@ def removeEqu(names):
         return removeEqu(newNames)
     else:
         return names
-    
+
 def removeDup(name):
     changed = False
     if "=" in name:
@@ -155,15 +155,44 @@ def filterDownloads(strains, exclusions, maxCtg):
             skippedAccs.extend([(s, ass[0]) for ass in sortedAssemblies[1:]])
         else:
             validAssemblies[s] = strains[s].popitem()
-    
+
     validAssemblies, tooManyContigs = filterTooManyCtgs(validAssemblies, maxCtg, tooManyContigs)
-    
+
     return validAssemblies, excludedAccs, skippedAccs, tooManyContigs
 
-def gatherAssemblies(validAssemblies, targetDir):
+def generateTargetDir(args):
+    if args.targetDir is None:
+        targetDir = os.path.realpath(args.dir) + "-ready"
+    else: targetDir = os.path.realpath(args.targetDir)
+    return targetDir
+
+
+def gatherAssemblies(args):
+    validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
+        filterDownloads(getInfoFrom(args), getExclusion(args.excludeList), args.maxCtg)
+    targetDir = generateTargetDir(args)
     for name in validAssemblies:
         fp = validAssemblies[name][1]['local_filename']
         os.makedirs(targetDir, exist_ok=True)
         t = os.path.join(targetDir, os.path.split(fp)[1])
         shutil.copy(fp, t)
-    return os.listdir(targetDir)
+
+    excludeListFile = os.path.realpath(targetDir) + '-excluded.tsv'
+    with open (excludeListFile, 'w') as ef:
+        ef.write('List of accessions in source dir:\n')
+        ef.write(os.path.realpath(args.dir)+'\n')
+        ef.write('but excluded in:\n')
+        ef.write(targetDir+'\n')
+        for text, excludedList in zip(
+            [
+                'Excluded by --excludeList',
+                'Excluded because not the best for the strain',
+                'Excluded because the assembly has too many contigs'
+            ],
+            [excludedAccs, skippedAccs, tooManyContigs]
+        ):
+            ef.write('\n'+text+'\n')
+            for strain, acc in excludedList:
+                ef.write(f'{strain}\t{acc}\n')
+
+    return os.listdir(targetDir), excludeListFile

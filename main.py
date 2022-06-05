@@ -1,7 +1,6 @@
 import argparse
-import os
 
-from tools import getInfoFrom, getExclusion, filterDownloads, gatherAssemblies
+from tools import gatherAssemblies
 
 def processArgs():
     parser = argparse.ArgumentParser()
@@ -21,16 +20,7 @@ def processArgs():
 
 def main():
     args = processArgs()
-    strains = getInfoFrom(args)
-    exclusions = getExclusion(args.excludeList)
-    validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
-        filterDownloads(strains, exclusions, args.maxCtg)
-
-    if args.targetDir is None:
-        targetDir = os.path.realpath(args.dir) + "-ready"
-    else: targetDir =  args.targetDir
-    gatherAssemblies(validAssemblies, targetDir)
-
+    gatherAssemblies(args)
 
 if __name__ == "__main__":
     main()
