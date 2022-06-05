@@ -104,7 +104,7 @@ def filterTooManyCtgs(assemblies, maxCtg, tooManyContigs):
         print(f'"Complete Genome" and "chromosome" level assembly will be skipped.')
         allKeys = list(assemblies.keys())
         for name in tqdm(allKeys):
-            acc, assemblyData = assemblies[name]
+            _, assemblyData = assemblies[name]
             assemblyLevel = assemblyData['assembly_level']
             if assemblyLevel in ['Complete Genome', 'Chromosome']:
                 continue
@@ -118,7 +118,8 @@ def filterDownloads(strains, exclusions, maxCtg):
     excludedAccs = [] # store excluded (by input) accessions: [("strain", "acc"), ("strain", "acc")...]
     skippedAccs  = [] # store accessions that are not the best for one strain name
     tooManyContigs = [] # store genomes that have too many contigs (if --maxCtg is set)
-    for s in strains:
+    print('\nFinding best assembly for single strain...')
+    for s in tqdm(strains):
         inEx = False
         for ex in exclusions:
             if ex in s:
@@ -171,14 +172,15 @@ def gatherAssemblies(args):
     validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
         filterDownloads(getInfoFrom(args), getExclusion(args.excludeList), args.maxCtg)
     targetDir = generateTargetDir(args)
-    for name in validAssemblies:
+    print(f'\nCopying file to "{targetDir}"')
+    for name in tqdm(validAssemblies):
         fp = validAssemblies[name][1]['local_filename']
         os.makedirs(targetDir, exist_ok=True)
         t = os.path.join(targetDir, os.path.split(fp)[1])
         shutil.copy(fp, t)
 
     excludeListFile = os.path.realpath(targetDir) + '-excluded.tsv'
-    with open (excludeListFile, 'w') as ef:
+    with open(excludeListFile, 'w') as ef:
         ef.write('List of accessions in source dir:\n')
         ef.write(os.path.realpath(args.dir)+'\n')
         ef.write('but excluded in:\n')
