@@ -100,7 +100,7 @@ def getExclusion(excludeList):
 def filterTooManyCtgs(assemblies, maxCtg, tooManyContigs):
     if not maxCtg is None:
         # Filter base on genome quality
-        print(f'Checking contig number of {len(assemblies)} sequences.')
+        print(f'\nChecking contig number of {len(assemblies)} sequences.')
         print(f'"Complete Genome" and "chromosome" level assembly will be skipped.')
         allKeys = list(assemblies.keys())
         for name in tqdm(allKeys):
@@ -118,8 +118,7 @@ def filterDownloads(strains, exclusions, maxCtg):
     excludedAccs = [] # store excluded (by input) accessions: [("strain", "acc"), ("strain", "acc")...]
     skippedAccs  = [] # store accessions that are not the best for one strain name
     tooManyContigs = [] # store genomes that have too many contigs (if --maxCtg is set)
-    print('\nFinding best assembly for single strain...')
-    for s in tqdm(strains):
+    for s in strains:
         inEx = False
         for ex in exclusions:
             if ex in s:
