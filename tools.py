@@ -180,7 +180,7 @@ def gatherAssemblies(args):
         fn, ext = os.path.splitext(fp)
         if ext == '.gz':
             ext = os.path.splitext(fn)[1] + ext
-        t = os.path.join(targetDir, name.replace(" ","_") + ext)
+        t = os.path.join(targetDir, name.replace(" ","_").replace("/","_") + ext)
         shutil.copy(fp, t)
 
     includeListFile = os.path.realpath(targetDir) + '-included.tsv'

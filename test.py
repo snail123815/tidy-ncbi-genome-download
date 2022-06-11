@@ -120,26 +120,26 @@ class test_crossDependentFunctions(unittest.TestCase):
         strains = getInfoFrom(self.args)
         keys = list(strains.keys())
         keysSorted = [
-            'Streptomyces albidoflavus 145',
+            'Streptomyces albidoflavus 145/R3',
             'Streptomyces albidoflavus J1074',
             'Streptomyces avermitilis MA-4680 NBRC 14893',
             'Streptomyces coelicolor A3(2) R4-mCherry-17',
             'Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963',
-            'Streptomyces specialis GW41-1564'
+            'Streptomyces specialis GW41-1564/R2'
         ]
         self.assertListEqual(sorted(keys), keysSorted)
 
     def test_filterTooManyCtgs(self):
         strains = getInfoFrom(self.args)
         validAssemblies = {
-            'Streptomyces specialis GW41-1564': ('GCF_001493375.1', strains['Streptomyces specialis GW41-1564']['GCF_001493375.1']),
-            'Streptomyces albidoflavus 145': ('GCF_002289305.1', strains['Streptomyces albidoflavus 145']['GCF_002289305.1'])
+            'Streptomyces specialis GW41-1564/R2': ('GCF_001493375.1', strains['Streptomyces specialis GW41-1564/R2']['GCF_001493375.1']),
+            'Streptomyces albidoflavus 145/R3': ('GCF_002289305.1', strains['Streptomyces albidoflavus 145/R3']['GCF_002289305.1'])
         }
         validAssemblies, tooManyContigs = filterTooManyCtgs(validAssemblies, self.args.maxCtg, [])
-        self.assertListEqual(tooManyContigs,[('Streptomyces albidoflavus 145', 'GCF_002289305.1')])
+        self.assertListEqual(tooManyContigs,[('Streptomyces albidoflavus 145/R3', 'GCF_002289305.1')])
         self.assertEqual(len(validAssemblies), 1)
         vaKeys = list(validAssemblies.keys())
-        self.assertListEqual(vaKeys, ['Streptomyces specialis GW41-1564'])
+        self.assertListEqual(vaKeys, ['Streptomyces specialis GW41-1564/R2'])
 
     def test_filterDownloads(self):
         exclusions = [
@@ -147,7 +147,7 @@ class test_crossDependentFunctions(unittest.TestCase):
             'Streptomyces coelicolor A3(2) R4-mCherry'
         ]
         strainAccs = (
-                ("Streptomyces specialis GW41-1564", "GCF_001493375.1"),
+                ("Streptomyces specialis GW41-1564/R2", "GCF_001493375.1"),
                 ("Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963", "GCF_001013905.1"),
                 ("Streptomyces avermitilis MA-4680 NBRC 14893", "GCF_000009765.2"),
                 ("Streptomyces albidoflavus J1074", "GCF_000359525.1"),
@@ -163,7 +163,7 @@ class test_crossDependentFunctions(unittest.TestCase):
 
     def test_gatherAssemblies(self):
         strainAccs = {
-            "Streptomyces specialis GW41-1564": "GCF_001493375.1",
+            "Streptomyces specialis GW41-1564/R2": "GCF_001493375.1",
             "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000009765.2",
             "Streptomyces albidoflavus J1074": "GCF_000359525.1",
@@ -172,13 +172,13 @@ class test_crossDependentFunctions(unittest.TestCase):
             "Streptomyces_albidoflavus_J1074.fna.gz",
             "Streptomyces_avermitilis_MA-4680_NBRC_14893.fna.gz",
             "Streptomyces_leeuwenhoekii_C34_DSM_42122_NRRL_B-24963.fna.gz",
-            "Streptomyces_specialis_GW41-1564.fna.gz",
+            "Streptomyces_specialis_GW41-1564_R2.fna.gz",
         ]
         excludedList = { 
             "Streptomyces coelicolor A3(2) R4-mCherry-17": "GCF_008124975.1",
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000764715.1",
             "Streptomyces albidoflavus J1074": "GCF_000156475.1",
-            "Streptomyces albidoflavus 145": "GCF_002289305.1",
+            "Streptomyces albidoflavus 145/R3": "GCF_002289305.1",
         }
         targetFiles, includeListFile, excludeListFile = gatherAssemblies(self.args)
         targetDir = generateTargetDir(self.args)
