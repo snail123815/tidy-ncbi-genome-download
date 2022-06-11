@@ -163,16 +163,16 @@ class test_crossDependentFunctions(unittest.TestCase):
 
     def test_gatherAssemblies(self):
         strainAccs = {
-                "Streptomyces specialis GW41-1564": "GCF_001493375.1",
-                "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
-                "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000009765.2",
-                "Streptomyces albidoflavus J1074": "GCF_000359525.1",
+            "Streptomyces specialis GW41-1564": "GCF_001493375.1",
+            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
+            "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000009765.2",
+            "Streptomyces albidoflavus J1074": "GCF_000359525.1",
         }
         targetFilesCorrect = [
-            'GCF_001493375.1_Streptomyces_specialis_genomic.fna.gz',
-            'GCF_001013905.1_sleC34_genomic.fna.gz',
-            'GCF_000009765.2_ASM976v2_genomic.fna.gz',
-            'GCF_000359525.1_ASM35952v1_genomic.fna.gz'
+            "Streptomyces_albidoflavus_J1074.fna.gz",
+            "Streptomyces_avermitilis_MA-4680_NBRC_14893.fna.gz",
+            "Streptomyces_leeuwenhoekii_C34_DSM_42122_NRRL_B-24963.fna.gz",
+            "Streptomyces_specialis_GW41-1564.fna.gz",
         ]
         excludedList = { 
             "Streptomyces coelicolor A3(2) R4-mCherry-17": "GCF_008124975.1",

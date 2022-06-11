@@ -172,10 +172,15 @@ def gatherAssemblies(args):
         filterDownloads(getInfoFrom(args), getExclusion(args.excludeList), args.maxCtg)
     targetDir = generateTargetDir(args)
     print(f'\nCopying file to "{targetDir}"')
+
     for name in tqdm(validAssemblies):
         fp = validAssemblies[name][1]['local_filename']
         os.makedirs(targetDir, exist_ok=True)
-        t = os.path.join(targetDir, os.path.split(fp)[1])
+        # t = os.path.join(targetDir, os.path.split(fp)[1])
+        fn, ext = os.path.splitext(fp)
+        if ext == '.gz':
+            ext = os.path.splitext(fn)[1] + ext
+        t = os.path.join(targetDir, name.replace(" ","_") + ext)
         shutil.copy(fp, t)
 
     includeListFile = os.path.realpath(targetDir) + '-included.tsv'
