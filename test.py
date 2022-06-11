@@ -146,12 +146,12 @@ class test_crossDependentFunctions(unittest.TestCase):
             'Streptomyces coelicolor M1154',
             'Streptomyces coelicolor A3(2) R4-mCherry'
         ]
-        strainAccs = set((
+        strainAccs = (
                 ("Streptomyces specialis GW41-1564", "GCF_001493375.1"),
                 ("Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963", "GCF_001013905.1"),
                 ("Streptomyces avermitilis MA-4680 NBRC 14893", "GCF_000009765.2"),
                 ("Streptomyces albidoflavus J1074", "GCF_000359525.1"),
-        ))
+        )
         validAssemblies, _, _, _= \
             filterDownloads(getInfoFrom(self.args), exclusions, maxCtg=400)
         # Only accession is checked, not data
@@ -159,9 +159,15 @@ class test_crossDependentFunctions(unittest.TestCase):
         # for name in validAssemblies:
         #     print(f'"{name}": ("{validAssemblies[name][0]}", strains["{name}"]["{validAssemblies[name][0]}"]),')
         vas = [(s, validAssemblies[s][0]) for s in validAssemblies]
-        self.assertSetEqual(strainAccs, set(vas))
+        self.assertSetEqual(set(strainAccs), set(vas))
 
     def test_gatherAssemblies(self):
+        strainAccs = {
+                "Streptomyces specialis GW41-1564": "GCF_001493375.1",
+                "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
+                "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000009765.2",
+                "Streptomyces albidoflavus J1074": "GCF_000359525.1",
+        }
         targetFilesCorrect = [
             'GCF_001493375.1_Streptomyces_specialis_genomic.fna.gz',
             'GCF_001013905.1_sleC34_genomic.fna.gz',
@@ -173,12 +179,24 @@ class test_crossDependentFunctions(unittest.TestCase):
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000764715.1",
             "Streptomyces albidoflavus J1074": "GCF_000156475.1",
             "Streptomyces albidoflavus 145": "GCF_002289305.1",
-         }
-        targetFiles, excludeListFile = gatherAssemblies(self.args)
+        }
+        targetFiles, includeListFile, excludeListFile = gatherAssemblies(self.args)
         targetDir = generateTargetDir(self.args)
         self.assertSetEqual(set(targetFiles), set(os.listdir(targetDir)))
         self.assertSetEqual(set(targetFilesCorrect), set(os.listdir(targetDir)))
         shutil.rmtree(targetDir)
+
+        n = 0
+        with open(includeListFile, 'r') as elf:
+            for l in elf:
+                l = l.strip()
+                if not '\t' in l: continue
+                n += 1
+                s, a = l.split('\t')
+                self.assertEqual(a, strainAccs.pop(s))
+        self.assertEqual(n, 4)
+        self.assertEqual(len(strainAccs), 0)
+
         n = 0
         with open(excludeListFile, 'r') as elf:
             for l in elf:

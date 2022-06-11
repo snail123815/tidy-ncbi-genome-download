@@ -114,7 +114,7 @@ def filterTooManyCtgs(assemblies, maxCtg, tooManyContigs):
     return assemblies, tooManyContigs
 
 def filterDownloads(strains, exclusions, maxCtg):
-    validAssemblies = {} # store target genome info [(acc, {data..}), (acc, {data...}), ...]
+    validAssemblies = {} # store target genome info [(strain, {data..}), (strain, {data...}), ...]
     excludedAccs = [] # store excluded (by input) accessions: [("strain", "acc"), ("strain", "acc")...]
     skippedAccs  = [] # store accessions that are not the best for one strain name
     tooManyContigs = [] # store genomes that have too many contigs (if --maxCtg is set)
@@ -178,22 +178,28 @@ def gatherAssemblies(args):
         t = os.path.join(targetDir, os.path.split(fp)[1])
         shutil.copy(fp, t)
 
+    includeListFile = os.path.realpath(targetDir) + '-included.tsv'
+    with open(includeListFile, 'w') as ef:
+        ef.write('List of accessions in source dir:\n')
+        ef.write(os.path.realpath(args.dir)+'\n')
+        ef.write('Included in:\n')
+        ef.write(targetDir+'\n')
+        for strain, strainData in validAssemblies.items():
+            ef.write('\n'+strain+'\t'+strainData[0])
+
     excludeListFile = os.path.realpath(targetDir) + '-excluded.tsv'
     with open(excludeListFile, 'w') as ef:
         ef.write('List of accessions in source dir:\n')
         ef.write(os.path.realpath(args.dir)+'\n')
         ef.write('but excluded in:\n')
         ef.write(targetDir+'\n')
-        for text, excludedList in zip(
-            [
-                'Excluded by --excludeList',
-                'Excluded because not the best for the strain',
-                'Excluded because the assembly has too many contigs'
-            ],
-            [excludedAccs, skippedAccs, tooManyContigs]
-        ):
+        for text, excludedList in [
+                ('Excluded by --excludeList', excludedAccs),
+                ('Excluded because not the best for the strain', skippedAccs),
+                ('Excluded because the assembly has too many contigs', tooManyContigs),
+        ]:
             ef.write('\n'+text+'\n')
             for strain, acc in excludedList:
                 ef.write(f'{strain}\t{acc}\n')
 
-    return os.listdir(targetDir), excludeListFile
+    return os.listdir(targetDir), includeListFile, excludeListFile
