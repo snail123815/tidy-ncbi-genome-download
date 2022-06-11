@@ -196,6 +196,7 @@ class test_crossDependentFunctions(unittest.TestCase):
                 self.assertEqual(a, strainAccs.pop(s))
         self.assertEqual(n, 4)
         self.assertEqual(len(strainAccs), 0)
+        os.remove(includeListFile)
 
         n = 0
         with open(excludeListFile, 'r') as elf:
