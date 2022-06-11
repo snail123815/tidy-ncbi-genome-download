@@ -174,7 +174,7 @@ class test_crossDependentFunctions(unittest.TestCase):
             "Streptomyces_leeuwenhoekii_C34_DSM_42122_NRRL_B-24963.fna.gz",
             "Streptomyces_specialis_GW41-1564_R2.fna.gz",
         ]
-        excludedList = { 
+        excludedList = {
             "Streptomyces coelicolor A3(2) R4-mCherry-17": "GCF_008124975.1",
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000764715.1",
             "Streptomyces albidoflavus J1074": "GCF_000156475.1",
@@ -192,8 +192,11 @@ class test_crossDependentFunctions(unittest.TestCase):
                 l = l.strip()
                 if not '\t' in l: continue
                 n += 1
-                s, a = l.split('\t')
+                s, a, ss = l.split('\t')
                 self.assertEqual(a, strainAccs.pop(s))
+                fn = f'{ss}.fna.gz' 
+                self.assertTrue(fn in targetFilesCorrect) # test safeName()
+                targetFilesCorrect.remove(fn)
         self.assertEqual(n, 4)
         self.assertEqual(len(strainAccs), 0)
         os.remove(includeListFile)

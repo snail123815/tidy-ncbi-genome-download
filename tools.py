@@ -166,6 +166,8 @@ def generateTargetDir(args):
     else: targetDir = os.path.realpath(args.targetDir)
     return targetDir
 
+def safeName(name):
+    return name.replace(" ","_").replace("/","_")
 
 def gatherAssemblies(args):
     validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
@@ -180,7 +182,7 @@ def gatherAssemblies(args):
         fn, ext = os.path.splitext(fp)
         if ext == '.gz':
             ext = os.path.splitext(fn)[1] + ext
-        t = os.path.join(targetDir, name.replace(" ","_").replace("/","_") + ext)
+        t = os.path.join(targetDir, safeName(name) + ext)
         shutil.copy(fp, t)
 
     includeListFile = os.path.realpath(targetDir) + '-included.tsv'
@@ -190,7 +192,7 @@ def gatherAssemblies(args):
         ef.write('Included in:\n')
         ef.write(targetDir+'\n')
         for strain, strainData in validAssemblies.items():
-            ef.write('\n'+strain+'\t'+strainData[0])
+            ef.write('\n'+strain+'\t'+strainData[0]+'\t'+safeName(strain))
 
     excludeListFile = os.path.realpath(targetDir) + '-excluded.tsv'
     with open(excludeListFile, 'w') as ef:
