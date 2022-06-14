@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from tools import getInfoFrom, removeDup, removeEqu, getNumCtgs, \
     getExclusion, filterDownloads, filterTooManyCtgs, gatherAssemblies, \
-    generateTargetDir
+    generateTargetDir, safeName
 
 argParser = namedtuple(
     'args',
@@ -161,6 +161,18 @@ class test_crossDependentFunctions(unittest.TestCase):
         vas = [(s, validAssemblies[s][0]) for s in validAssemblies]
         self.assertSetEqual(set(strainAccs), set(vas))
 
+    def test_safeName(self):
+        testSet = [
+            "Streptomyces specialis GW41-1564/R2",
+            "Streptomyces coelicolor A3(2) R4-mCherry-17",
+        ]
+        correctSet = [
+            "Streptomyces_specialis_GW41-1564_R2",
+            "Streptomyces_coelicolor_A3_2_R4-mCherry-17",
+        ]
+        for t,c in zip(testSet, correctSet):
+            self.assertEqual(safeName(t), c)
+
     def test_gatherAssemblies(self):
         strainAccs = {
             "Streptomyces specialis GW41-1564/R2": "GCF_001493375.1",
@@ -194,9 +206,7 @@ class test_crossDependentFunctions(unittest.TestCase):
                 n += 1
                 s, a, ss = l.split('\t')
                 self.assertEqual(a, strainAccs.pop(s))
-                fn = f'{ss}.fna.gz' 
-                self.assertTrue(fn in targetFilesCorrect) # test safeName()
-                targetFilesCorrect.remove(fn)
+                fn = f'{ss}.fna.gz'
         self.assertEqual(n, 4)
         self.assertEqual(len(strainAccs), 0)
         os.remove(includeListFile)

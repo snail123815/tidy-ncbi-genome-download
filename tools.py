@@ -1,5 +1,6 @@
 import subprocess
 import os
+import re
 from tqdm import tqdm
 import pandas as pd
 import shutil
@@ -167,7 +168,7 @@ def generateTargetDir(args):
     return targetDir
 
 def safeName(name):
-    return name.replace(" ","_").replace("/","_")
+    return re.sub(r"[ /()]+", '_', name)
 
 def gatherAssemblies(args):
     validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \
