@@ -89,8 +89,9 @@ class test_basicFunctions(unittest.TestCase):
 
     def test_getExclusion(self):
         targetList = [
-            'Streptomyces coelicolor M1154',
-            'Streptomyces coelicolor A3(2) R4-mCherry'
+            ['Streptomyces coelicolor M1154',],
+            ['Streptomyces coelicolor A3(2) R4-mCherry'],
+            ['Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963', 'GCF_001013905.1']
         ]
         self.assertListEqual(getExclusion('test_data/exclusion.txt'), targetList)
         self.assertListEqual(getExclusion('test_data/notExist.txt'), [])
@@ -143,12 +144,12 @@ class test_crossDependentFunctions(unittest.TestCase):
 
     def test_filterDownloads(self):
         exclusions = [
-            'Streptomyces coelicolor M1154',
-            'Streptomyces coelicolor A3(2) R4-mCherry'
+            ['Streptomyces coelicolor M1154',],
+            ['Streptomyces coelicolor A3(2) R4-mCherry'],
+            ['Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963', 'GCF_001013905.1']
         ]
         strainAccs = (
                 ("Streptomyces specialis GW41-1564/R2", "GCF_001493375.1"),
-                ("Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963", "GCF_001013905.1"),
                 ("Streptomyces avermitilis MA-4680 NBRC 14893", "GCF_000009765.2"),
                 ("Streptomyces albidoflavus J1074", "GCF_000359525.1"),
         )
@@ -176,17 +177,16 @@ class test_crossDependentFunctions(unittest.TestCase):
     def test_gatherAssemblies(self):
         strainAccs = {
             "Streptomyces specialis GW41-1564/R2": "GCF_001493375.1",
-            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000009765.2",
             "Streptomyces albidoflavus J1074": "GCF_000359525.1",
         }
         targetFilesCorrect = [
             "Streptomyces_albidoflavus_J1074.fna.gz",
             "Streptomyces_avermitilis_MA-4680_NBRC_14893.fna.gz",
-            "Streptomyces_leeuwenhoekii_C34_DSM_42122_NRRL_B-24963.fna.gz",
             "Streptomyces_specialis_GW41-1564_R2.fna.gz",
         ]
         excludedList = {
+            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
             "Streptomyces coelicolor A3(2) R4-mCherry-17": "GCF_008124975.1",
             "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000764715.1",
             "Streptomyces albidoflavus J1074": "GCF_000156475.1",
@@ -207,11 +207,12 @@ class test_crossDependentFunctions(unittest.TestCase):
                 s, a, ss = l.split('\t')
                 self.assertEqual(a, strainAccs.pop(s))
                 fn = f'{ss}.fna.gz'
-        self.assertEqual(n, 4)
+        self.assertEqual(n, len(targetFilesCorrect))
         self.assertEqual(len(strainAccs), 0)
         os.remove(includeListFile)
 
         n = 0
+        cn = len(excludedList)
         with open(excludeListFile, 'r') as elf:
             for l in elf:
                 l = l.strip()
@@ -219,7 +220,7 @@ class test_crossDependentFunctions(unittest.TestCase):
                 n += 1
                 s, a = l.split('\t')
                 self.assertEqual(a, excludedList.pop(s))
-        self.assertEqual(n, 4)
+        self.assertEqual(n, cn)
         os.remove(excludeListFile)
 
 if __name__ == "__main__":

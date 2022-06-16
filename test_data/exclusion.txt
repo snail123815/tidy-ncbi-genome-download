@@ -1,2 +1,3 @@
 Streptomyces coelicolor M1154
 Streptomyces coelicolor A3(2) R4-mCherry
+Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963	GCF_001013905.1

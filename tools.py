@@ -92,7 +92,7 @@ def getInfoFrom(args):
 def getExclusion(excludeList):
     try:
         with open(excludeList, 'r') as el:
-            exclusions = [e.strip() for e in el.readlines()]
+            exclusions = [e.strip().split('\t') for e in el.readlines()]
     except FileNotFoundError:
         print(f'File {excludeList} does not find.')
         exclusions = []
@@ -121,12 +121,28 @@ def filterDownloads(strains, exclusions, maxCtg):
     tooManyContigs = [] # store genomes that have too many contigs (if --maxCtg is set)
     for s in strains:
         inEx = False
+        exs = []
         for ex in exclusions:
-            if ex in s:
+            exStrainname = ex[0]
+            try:
+                exAcc = ex[1]
+            except IndexError:
+                exAcc = None
+            if not exAcc is None:
+                for acc in strains[s]:
+                    if acc == exAcc:
+                        excludedAccs.append((s, acc))
+                        strains[s].pop(acc)
+                        exs.append(ex)
+                        break
+            elif exStrainname in s:
                 inEx = True
                 excludedAccs.extend([(s, acc) for acc in strains[s]])
+                exs.append(ex)
                 break
-        if inEx: continue
+        [exclusions.remove(ex) for ex in exs]
+
+        if inEx or len(strains[s]) == 0: continue
         """Assembly level - the highest level of assembly for any object in the assembly:
         Complete genome - all chromosomes are gapless and have no runs of 10 or more ambiguous bases (Ns), there are no unplaced or unlocalized scaffolds, and all the expected chromosomes are present (i.e. the assembly is not noted as having partial genome representation). Plasmids and organelles may or may not be included in the assembly but if present then the sequences are gapless.
         Chromosome - there is sequence for one or more chromosomes. This could be a completely sequenced chromosome without gaps or a chromosome containing scaffolds or contigs with gaps between them. There may also be unplaced or unlocalized scaffolds.
