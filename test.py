@@ -166,10 +166,12 @@ class test_crossDependentFunctions(unittest.TestCase):
         testSet = [
             "Streptomyces specialis GW41-1564/R2",
             "Streptomyces coelicolor A3(2) R4-mCherry-17",
+            "Streptomyces sp. TEST(s);678",
         ]
         correctSet = [
             "Streptomyces_specialis_GW41-1564_R2",
             "Streptomyces_coelicolor_A3_2_R4-mCherry-17",
+            "Streptomyces_sp._TEST_s_678",
         ]
         for t,c in zip(testSet, correctSet):
             self.assertEqual(safeName(t), c)
