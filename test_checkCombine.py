@@ -2,12 +2,9 @@ import unittest
 from unittest.mock import patch
 from io import StringIO
 from typing import Callable
-import os
-import shutil
 from collections import namedtuple
 
 from check_database_combine import checkIllegal, splitExt, checkDup, checkCombine
-from tools import safeName
 
 argParser = namedtuple(
     'argParser',
@@ -46,10 +43,6 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         self.assertTupleEqual(splitExt('file.name.fna'), ('file.name', '.fna'))
         self.assertTupleEqual(splitExt(None), (None, None))
     
-
-    def test_print(self):
-        printed = get_print(print, 'kke')
-        self.assertEqual(printed, 'kke')
 
     def test_checkDup_checkCombine(self):
         inputA = {
