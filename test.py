@@ -8,7 +8,7 @@ from tools import getInfoFrom, removeDup, removeEqu, getNumCtgs, \
     generateTargetDir, safeName
 
 argParser = namedtuple(
-    'args',
+    'argParser',
     [
         'dir', 'tsv', 'excludeList', 'maxCtg', 'targetDir'
     ]
@@ -62,7 +62,7 @@ class Test_strainNameComprehension(unittest.TestCase):
         for s, r in zip(sources, results):
             self.assertEqual(removeDup(s), r)
 
-class test_biosequenceCounting(unittest.TestCase):
+class Test_biosequenceCounting(unittest.TestCase):
     def setUp(self) -> None:
         return super().setUp()
 
@@ -81,7 +81,7 @@ class test_biosequenceCounting(unittest.TestCase):
             self.assertEqual(getNumCtgs(f), n)
         self.assertRaises(Exception, getNumCtgs, "abc.unknown.gz")
 
-class test_basicFunctions(unittest.TestCase):
+class Test_basicFunctions(unittest.TestCase):
     # not biosequencereading, not strain name comprehension
     # not based on other functions
     def setUp(self) -> None:
@@ -106,7 +106,7 @@ class test_basicFunctions(unittest.TestCase):
         self.assertEqual(generateTargetDir(withTargetDirArgs),
             os.path.realpath('targetDir'))
 
-class test_crossDependentFunctions(unittest.TestCase):
+class Test_crossDependentFunctions(unittest.TestCase):
     def setUp(self) -> None:
         self.args = argParser(
             dir='test_data/ncbi-ftp-download',
