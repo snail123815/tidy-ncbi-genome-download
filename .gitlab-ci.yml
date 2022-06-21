@@ -29,7 +29,7 @@ unit-test-checkCombine:
   image: python:latest
   before_script:
     - python3 -V  # Print out python version for debugging
-    - pip3 install pandas coverage
+    - pip3 install pandas tqdm coverage
   script:
       - coverage run -m unittest test_checkCombine.py
       - coverage report
