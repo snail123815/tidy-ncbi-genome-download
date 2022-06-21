@@ -2,7 +2,7 @@ stages:
   - test_tools
   - test_check_database_combine
 
-unit-test:
+unit-test-tools:
   stage: test_tools
   # https://hub.docker.com/r/library/python/tags/
   image: python:latest
@@ -23,7 +23,7 @@ unit-test:
     paths:
       - htmlcov
 
-unit-test:
+unit-test-checkCombine:
   stage: test_check_database_combine
   # https://hub.docker.com/r/library/python/tags/
   image: python:latest
