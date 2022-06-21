@@ -32,7 +32,7 @@ unit-test-checkCombine:
     - pip3 install pandas tqdm coverage
   script:
       - coverage run -m unittest test_checkCombine.py
-      - coverage report
+      - coverage report --omit tools.py
       - coverage xml
       - coverage html
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
