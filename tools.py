@@ -71,10 +71,11 @@ def getInfoFrom(args):
             strain = strain.replace('type strain', '').\
                 replace(':', '').replace('(', '').replace(')', '').strip()
         # some strain name are duplicated in orgnism name
+        if strain == 'nan': strain = ''
         names = f'{org} {strain}'.split(' ')
         org = " ".join(names[:2])
         strain = removeDup(" ".join(names[2:]))
-        name = f'{org} {strain}'
+        name = f'{org} {strain}'.strip()
 
         filePath = os.path.join(args.dir,
             row.local_filename.split(dirName)[1][1:])

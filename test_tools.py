@@ -188,11 +188,11 @@ class Test_crossDependentFunctions(unittest.TestCase):
             "Streptomyces_specialis_GW41-1564_R2.fna.gz",
         ]
         excludedList = {
-            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": "GCF_001013905.1",
-            "Streptomyces coelicolor A3(2) R4-mCherry-17": "GCF_008124975.1",
-            "Streptomyces avermitilis MA-4680 NBRC 14893": "GCF_000764715.1",
-            "Streptomyces albidoflavus J1074": "GCF_000156475.1",
-            "Streptomyces albidoflavus 145/R3": "GCF_002289305.1",
+            "Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963": ["GCF_001013905.1",],
+            "Streptomyces coelicolor A3(2) R4-mCherry-17": ["GCF_008124975.1",],
+            "Streptomyces avermitilis MA-4680 NBRC 14893": ["GCF_000764715.1",],
+            "Streptomyces albidoflavus J1074": ["GCF_000156475.1", "GCF_000359525.2"],
+            "Streptomyces albidoflavus 145/R3": ["GCF_002289305.1",],
         }
         targetFiles, includeListFile, excludeListFile = gatherAssemblies(self.args)
         targetDir = generateTargetDir(self.args)
@@ -219,9 +219,13 @@ class Test_crossDependentFunctions(unittest.TestCase):
             for l in elf:
                 l = l.strip()
                 if not '\t' in l: continue
-                n += 1
                 s, a = l.split('\t')
-                self.assertEqual(a, excludedList.pop(s))
+                self.assertIn(a, excludedList[s])
+                if len(excludedList[s]) == 1:
+                    excludedList.pop(s)
+                    n += 1
+                else:
+                    excludedList[s].remove(a)
         self.assertEqual(n, cn)
         os.remove(excludeListFile)
 
