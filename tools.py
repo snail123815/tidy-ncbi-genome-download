@@ -185,7 +185,7 @@ def generateTargetDir(args):
     return targetDir
 
 def safeName(name: str) -> str:
-    return re.sub(r"[\:\,\(\)\;\[\]\'\"\ \/\{\}\+\*\t\n]+", '_', name)
+    return re.sub(r"[ _:,();{}+*'\"[\]\/\t\n]+", '_', name)
 
 def gatherAssemblies(args):
     validAssemblies, excludedAccs, skippedAccs, tooManyContigs = \

@@ -27,11 +27,13 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         sources = [
             'test1_.*)]{.faa.gz',
             '2test_sp. a.fna.xz',
+            '2tes_(t)_sp. a.fna.xz',
             'correct_name.fna.xz'
         ]
         corr = [
             ('test1_.*)]{.faa.gz', 'test1_._.faa.gz'),
             ('2test_sp. a.fna.xz', '2test_sp._a.fna.xz'),
+            ('2tes_(t)_sp. a.fna.xz', '2tes_t_sp._a.fna.xz'),
             ('correct_name.fna.xz', None),
         ]
         for tupT, tupC in zip(checkIllegal(sources), corr):
