@@ -1,6 +1,6 @@
 stages:
-  - test_tools
-  - test_check_database_combine
+  - test_tidy
+  - test_combine
 
 unit-test-tidy:
   stage: test_tidy
