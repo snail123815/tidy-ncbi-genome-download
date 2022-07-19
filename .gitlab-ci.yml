@@ -2,15 +2,15 @@ stages:
   - test_tools
   - test_check_database_combine
 
-unit-test-tools:
-  stage: test_tools
+unit-test-tidy:
+  stage: test_tidy
   # https://hub.docker.com/r/library/python/tags/
   image: python:latest
   before_script:
     - python3 -V  # Print out python version for debugging
     - pip3 install pandas tqdm coverage
   script:
-      - coverage run -m unittest test_tools.py
+      - coverage run -m unittest tests/test_tidy.py
       - coverage report
       - coverage xml
       - coverage html
@@ -23,16 +23,16 @@ unit-test-tools:
     paths:
       - htmlcov
 
-unit-test-checkCombine:
-  stage: test_check_database_combine
+unit-test-combine:
+  stage: test_combine
   # https://hub.docker.com/r/library/python/tags/
   image: python:latest
   before_script:
     - python3 -V  # Print out python version for debugging
     - pip3 install pandas tqdm coverage
   script:
-      - coverage run -m unittest test_checkCombine.py
-      - coverage report --omit tools.py
+      - coverage run -m unittest tests/test_combine.py
+      - coverage report --omit tidy/tidy.py
       - coverage xml
       - coverage html
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'

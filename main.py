@@ -1,6 +1,6 @@
 import argparse
 
-from tools import gatherAssemblies
+from tidy import gatherAssemblies
 
 def processArgs():
     parser = argparse.ArgumentParser()

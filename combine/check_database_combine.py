@@ -8,7 +8,7 @@ import argparse
 from typing import Any, overload
 from collections import Counter
 
-from tools import safeName
+from tidy import safeName
 
 
 def checkIllegal(names: list[str]) -> list[tuple[str, None|str]]:

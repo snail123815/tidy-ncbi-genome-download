@@ -3,7 +3,7 @@ import os
 import shutil
 from collections import namedtuple
 
-from tools import getInfoFrom, removeDup, removeEqu, getNumCtgs, \
+from tidy import getInfoFrom, removeDup, removeEqu, getNumCtgs, \
     getExclusion, filterDownloads, filterTooManyCtgs, gatherAssemblies, \
     generateTargetDir, safeName
 
@@ -67,7 +67,7 @@ class Test_biosequenceCounting(unittest.TestCase):
         return super().setUp()
 
     def test_countCtgs(self):
-        testDataDir = 'test_data/numCtgs'
+        testDataDir = 'tests/test_data/numCtgs'
         files = [
             "test.fna.gz",
             "test.gpff.gz"
@@ -93,8 +93,8 @@ class Test_basicFunctions(unittest.TestCase):
             ['Streptomyces coelicolor A3(2) R4-mCherry'],
             ['Streptomyces leeuwenhoekii C34 DSM 42122 NRRL B-24963', 'GCF_001013905.1']
         ]
-        self.assertListEqual(getExclusion('test_data/exclusion.txt'), targetList)
-        self.assertListEqual(getExclusion('test_data/notExist.txt'), [])
+        self.assertListEqual(getExclusion('tests/test_data/exclusion.txt'), targetList)
+        self.assertListEqual(getExclusion('tests/test_data/notExist.txt'), [])
 
     def test_generateTargetDir(self):
         withTargetDirArgs = argParser(dir='', tsv='',
@@ -109,9 +109,9 @@ class Test_basicFunctions(unittest.TestCase):
 class Test_crossDependentFunctions(unittest.TestCase):
     def setUp(self) -> None:
         self.args = argParser(
-            dir='test_data/ncbi-ftp-download',
-            tsv='test_data/ncbi-ftp-download.tsv',
-            excludeList='test_data/exclusion.txt',
+            dir='tests/test_data/ncbi-ftp-download',
+            tsv='tests/test_data/ncbi-ftp-download.tsv',
+            excludeList='tests/test_data/exclusion.txt',
             maxCtg=400,
             targetDir=None,
         )

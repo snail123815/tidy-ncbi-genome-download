@@ -4,7 +4,7 @@ from io import StringIO
 from typing import Callable
 from collections import namedtuple
 
-from check_database_combine import checkIllegal, splitExt, checkDup, checkCombine
+from combine import checkIllegal, splitExt, checkDup, checkCombine
 
 argParser = namedtuple(
     'argParser',
@@ -48,7 +48,7 @@ class Test_check_safe_combine_databases(unittest.TestCase):
 
     def test_checkDup_checkCombine(self):
         inputA = {
-            'test_data/tdbs/tdb1': [
+            'tests/test_data/tdbs/tdb1': [
                 ('file1.txt', None),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
                 ('file4.aa.xz', None),
@@ -58,37 +58,37 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         }
         outputA_expects = [
             "Found duplicated name file2:",
-                "\ttest_data/tdbs/tdb1/filE2.faa.xz",
-                "\ttest_data/tdbs/tdb1/file2.fna.xz",
+                "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
+                "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
             "Found 1 none unique name(s), 4 unique one(s).",
             "Total checked files: 5",
         ]
         inputB = {
-            'test_data/tdbs/tdb1': [
+            'tests/test_data/tdbs/tdb1': [
                 ('file1.txt', None),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
                 ('filE2.faa.xz', None),
                 ('file2.fna.xz', None)
             ],
-            'test_data/tdbs/tdb2': [
+            'tests/test_data/tdbs/tdb2': [
                 ('file5.fna.gz', None),
             ],
-            'test_data/tdbs/tdb3': [
+            'tests/test_data/tdbs/tdb3': [
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
                 ('illeGal patt(a)[b*].txt.gz', 'illeGal_patt_a_b_.txt.gz')
             ]
         }
         outputB_expects = [
             "Found duplicated name file2:",
-                "\ttest_data/tdbs/tdb1/filE2.faa.xz",
-                "\ttest_data/tdbs/tdb1/file2.fna.xz",
+                "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
+                "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
             "Found duplicated name illegal_patt_a_b_:",
-                "\ttest_data/tdbs/tdb1/illegal patt(a)[b*].txt",
-                    "\t\ttest_data/tdbs/tdb1/illegal_patt_a_b_.txt",
-                "\ttest_data/tdbs/tdb3/illegal patt(a)[b*].txt",
-                    "\t\ttest_data/tdbs/tdb3/illegal_patt_a_b_.txt",
-                "\ttest_data/tdbs/tdb3/illeGal patt(a)[b*].txt.gz",
-                    "\t\ttest_data/tdbs/tdb3/illeGal_patt_a_b_.txt.gz",
+                "\ttests/test_data/tdbs/tdb1/illegal patt(a)[b*].txt",
+                    "\t\ttests/test_data/tdbs/tdb1/illegal_patt_a_b_.txt",
+                "\ttests/test_data/tdbs/tdb3/illegal patt(a)[b*].txt",
+                    "\t\ttests/test_data/tdbs/tdb3/illegal_patt_a_b_.txt",
+                "\ttests/test_data/tdbs/tdb3/illeGal patt(a)[b*].txt.gz",
+                    "\t\ttests/test_data/tdbs/tdb3/illeGal_patt_a_b_.txt.gz",
             "Found 2 none unique name(s), 4 unique one(s).",
             "Total checked files: 7",
         ]
@@ -102,9 +102,9 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         linesB = outputB.split('\n')
         for exp in outputB_expects:
             self.assertIn(exp, linesB)
-        self.assertNotIn("test_data/tdbs/tdb2", linesB)
+        self.assertNotIn("tests/test_data/tdbs/tdb2", linesB)
 
-        outputC = get_print(checkCombine, ['test_data/tdbs/tdb1', 'test_data/tdbs/tdb2', 'test_data/tdbs/tdb3'])
+        outputC = get_print(checkCombine, ['tests/test_data/tdbs/tdb1', 'tests/test_data/tdbs/tdb2', 'tests/test_data/tdbs/tdb3'])
         linesC = outputC.split('\n')
         outputC_expects = [
             'Checking dirs as combined:'
@@ -113,10 +113,10 @@ class Test_check_safe_combine_databases(unittest.TestCase):
             self.assertIn(exp, linesC)
         excepts_toCheck_consecutively = [
             [
-                "Checking dir test_data/tdbs/tdb2 individually.",
+                "Checking dir tests/test_data/tdbs/tdb2 individually.",
                 "No illegal characters found.",
                 "No possible duplication found in dir(s):",
-                "\ttest_data/tdbs/tdb2",
+                "\ttests/test_data/tdbs/tdb2",
             ]
         ]
         for exps in excepts_toCheck_consecutively:
