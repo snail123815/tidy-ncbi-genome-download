@@ -1,18 +1,17 @@
 # Before combining two databases, use this script to check the file names.
 # This script should check:
 # - Replication of file names, including those only differ in letter cases.
-# - File name safety, make sure there is no illegal characters: :,();[]'" /{}+*\t\n
+# - File name safety, make sure there is no illegal characters, using the function safeName
 
 import os
 import argparse
-from typing import Any, overload
-from collections import Counter
-
+import re
+from typing import overload, Literal
 from tidy import safeName
 
 
 def checkIllegal(names: list[str]) -> list[tuple[str, None|str]]:
-    corrNames = []
+    corrNames: list[tuple[str, None|str]] = []
     containsIllegalNames = False
     for name in names:
         sname: None|str = safeName(name)
@@ -29,7 +28,9 @@ def checkIllegal(names: list[str]) -> list[tuple[str, None|str]]:
         print('No illegal characters found.')
     else:
         print()
+    corrNames.sort(key=lambda x: x[0])
     return corrNames
+
 
 @overload
 def splitExt(n: str) -> tuple[str, str]:
@@ -46,20 +47,54 @@ def splitExt(n):
     return name, ext
 
 
-def checkDup(dictOfCorrNames: dict[str, list[tuple[str, None|str]]]) -> None:
-    uniqueNames: set[str] = set()
-    noneUnique: set[str] = set()
-    count = 0
-    for _, corrNames in dictOfCorrNames.items():
+def checkDup(
+    dictOfCorrNames: dict[str, list[tuple[str, None|str]]],
+    keep='first'
+) -> dict[str, list[tuple[str, None|str]]]:
+
+    corrPathNames: dict[str, list[tuple[str, None|str]]] = {}
+    uniqueNames: set[str] = set() # track all unique names
+    noneUnique: set[str] = set() # track none unique names
+    allNames: set[str] = set() # track all names, with suffix added to the none unique ones
+    count = 0 # track total files
+    noneUniquePrefix = '_name_rep'
+    hasAssignedChecker = re.compile(noneUniquePrefix+r'\d+$')
+
+    for p, corrNames in dictOfCorrNames.items():
+        corrPathNames[p] = []
         count += len(corrNames)
-        for n0, n1 in corrNames: 
-            n: str = (n0 if n1 is None else n1).lower()
-            name, _ = splitExt(n)
-            if name in uniqueNames:
-                noneUnique.add(name)
+
+        for fn0, fn1 in corrNames: 
+            fn = (fn0 if fn1 is None else fn1)
+            name, ext = splitExt(fn)
+            uniqueNames.add(name.lower())
+
+            lenAll = len(allNames)
+            allNames.add(name.lower())
+            isUnique = (lenAll != len(allNames))
+            if not isUnique: noneUnique.add(name)
+            noneUniqueIndex = 0
+            while lenAll == len(allNames):
+                noneUniqueIndex += 1
+                hasAssigned = hasAssignedChecker.search(name)
+                if hasAssigned:
+                    name = name[:hasAssigned.start()]
+                name += noneUniquePrefix + str(noneUniqueIndex)
+                allNames.add(name.lower())
+
+            if isUnique and fn1 is None:
+                corrName = None
+            elif isUnique:
+                corrName = fn1
             else:
-                uniqueNames.add(name)
-        
+                corrName = name+ext
+
+            if keep == 'all' or isUnique:
+                corrPathNames[p].append((fn0, corrName))
+            else: # keep == 'first' and not isUnique
+                pass
+        corrPathNames[p].sort(key=lambda x:x[0])
+
     sortedNoneUnique = sorted(list(noneUnique))
     dups: dict[str, list[tuple[str, str, str|None]]] = {}
     for p, corrNames in dictOfCorrNames.items():
@@ -71,23 +106,28 @@ def checkDup(dictOfCorrNames: dict[str, list[tuple[str, None|str]]]) -> None:
                     if nn not in dups:
                         dups[nn] = [(p, n0, n1)]
                     else: dups[nn].append((p, n0, n1))
-    
+
     for dup, itemlist in dups.items():
         print(f'Found duplicated name {dup}:')
         for p, n0, n1 in itemlist:
             print('\t'+os.path.join(p, n0))
             if not n1 is None:
                 print('\t\t'+os.path.join(p, n1))
-    
+
     if len(noneUnique) == 0:
         print('No possible duplication found in dir(s):')
         print('\t'+'\n'.join(dictOfCorrNames.keys()))
     else:
-        print(f'Found {len(noneUnique)} none unique name(s), {len(uniqueNames)} unique one(s).')
+        print(f'Found {len(dups)} none unique name(s), {len(uniqueNames)} unique one(s).')
     print(f'Total checked files: {count}\n')
 
+    return corrPathNames
+
     
-def checkCombine(paths: list[str]) -> None:
+def checkCombine(
+    paths: list[str],
+    keep: Literal['first','all']='first'
+) -> dict[str, list[tuple[str, None|str]]]:
     namesEachPath = {}
     print()
     for p in paths:
@@ -99,7 +139,7 @@ def checkCombine(paths: list[str]) -> None:
         checkDup({p:corrNames})
     # check duplication if combined
     print('Checking dirs as combined:')
-    checkDup(namesEachPath)
+    return checkDup(namesEachPath, keep=keep)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
