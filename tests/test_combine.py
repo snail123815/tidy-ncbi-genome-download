@@ -1,10 +1,12 @@
 import unittest
 from unittest.mock import patch
 from io import StringIO
+import os
+import shutil
 from typing import Callable, Any
 from collections import namedtuple
 
-from combine import checkIllegal, splitExt, checkDup, checkCombine
+from combine import checkIllegal, splitExt, checkDup, checkCombine, combineDatabases
 
 argParser = namedtuple(
     'argParser',
@@ -12,6 +14,8 @@ argParser = namedtuple(
         'paths'
     ]
 )
+combinedDatabaseTarget = 'tests/test_data/combined'
+combinedDatabaseTarget_ka = 'tests/test_data/combined_ka'
 
 @patch('sys.stdout', new_callable=StringIO)
 def get_print(func: Callable, input, mock_stdout) -> tuple[str, Any]:
@@ -19,8 +23,14 @@ def get_print(func: Callable, input, mock_stdout) -> tuple[str, Any]:
     return mock_stdout.getvalue().strip(), ret
 
 class Test_check_safe_combine_databases(unittest.TestCase):
-    def setUp(self) -> None:
-        return super().setUp()
+    
+    @classmethod
+    def tearDownClass(cls):
+        for dir in [combinedDatabaseTarget, combinedDatabaseTarget_ka]:
+            try:
+                shutil.rmtree(dir)
+            except FileNotFoundError:
+                pass
 
     def test_checkIllegal(self):
         # major function implemented in safeName(), also tested there.
@@ -219,6 +229,42 @@ class Test_check_safe_combine_databases(unittest.TestCase):
             self.assertListEqual(retC_ka[p], retC_keepAll_expects[p], retC_ka)
 
         
+    def test_combineDatabases(self):
+        combineDatabases(
+            ['tests/test_data/tdbs/tdb1', 'tests/test_data/tdbs/tdb2', 'tests/test_data/tdbs/tdb3'],
+            combinedDatabaseTarget
+        )
+        expectFiles = [
+            'filE2.faa.xz',
+            'file1.txt',
+            'file3.faa.xz',
+            'file4.aa.xz',
+            'file5.fna.gz',
+            'illegal_patt_a_b_.txt'
+        ]
+        combinedDirFiles = sorted(os.listdir(combinedDatabaseTarget))
+        self.assertListEqual(combinedDirFiles, expectFiles, combinedDirFiles)
+
+        combineDatabases(
+            ['tests/test_data/tdbs/tdb1', 'tests/test_data/tdbs/tdb2', 'tests/test_data/tdbs/tdb3'],
+            combinedDatabaseTarget_ka,
+            keep='all'
+        )
+        expectFiles_ka = [
+            'FIle4_name_rep1.aa.gz',
+            'filE2.faa.xz',
+            'file1.txt',
+            'file2_name_rep1.fna.xz',
+            'file3.faa.xz',
+            'file3_name_rep1.fna.gz',
+            'file4.aa.xz',
+            'file5.fna.gz',
+            'illeGal_patt_a_b__name_rep1.txt.gz',
+            'illegal_patt_a_b_.txt',
+            'illegal_patt_a_b__name_rep2.txt'
+        ]
+        combinedDirFiles_ka = sorted(os.listdir(combinedDatabaseTarget_ka))
+        self.assertListEqual(combinedDirFiles_ka, expectFiles_ka, combinedDirFiles_ka)
 
 
 if __name__ == "__main__":

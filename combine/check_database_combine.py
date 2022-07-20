@@ -140,12 +140,3 @@ def checkCombine(
     # check duplication if combined
     print('Checking dirs as combined:')
     return checkDup(namesEachPath, keep=keep)
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('p', nargs="+", help="pathes of databases (folders) you want to combine")
-
-    args = parser.parse_args()
-
-    checkCombine(args.p)
-
