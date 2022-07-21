@@ -28,7 +28,7 @@ def checkIllegal(names: list[str]) -> list[tuple[str, None|str]]:
         print('No illegal characters found.')
     else:
         print()
-    corrNames.sort(key=lambda x: x[0])
+    corrNames.sort(key=lambda x: x[0].lower())
     return corrNames
 
 
@@ -72,7 +72,7 @@ def checkDup(
             lenAll = len(allNames)
             allNames.add(name.lower())
             isUnique = (lenAll != len(allNames))
-            if not isUnique: noneUnique.add(name)
+            if not isUnique: noneUnique.add(name.lower())
             noneUniqueIndex = 0
             while lenAll == len(allNames):
                 noneUniqueIndex += 1
@@ -93,7 +93,7 @@ def checkDup(
                 corrPathNames[p].append((fn0, corrName))
             else: # keep == 'first' and not isUnique
                 pass
-        corrPathNames[p].sort(key=lambda x:x[0])
+        corrPathNames[p].sort(key=lambda x:x[0].lower())
 
     sortedNoneUnique = sorted(list(noneUnique))
     dups: dict[str, list[tuple[str, str, str|None]]] = {}

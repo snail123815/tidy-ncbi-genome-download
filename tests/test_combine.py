@@ -109,8 +109,8 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         ]
         retB_keepFirst_expects = {
             'tests/test_data/tdbs/tdb1': [
-                ('filE2.faa.xz', None),
                 ('file1.txt', None),
+                ('filE2.faa.xz', None),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
             ],
             'tests/test_data/tdbs/tdb2': [
@@ -121,8 +121,8 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         }
         retB_keepAll_expects = {
             'tests/test_data/tdbs/tdb1': [
-                ('filE2.faa.xz', None),
                 ('file1.txt', None),
+                ('filE2.faa.xz', None),
                 ('file2.fna.xz', 'file2_name_rep1.fna.xz'),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
             ],
@@ -133,8 +133,8 @@ class Test_check_safe_combine_databases(unittest.TestCase):
                 # do not change the double underscore __, you need origional name anyway.
             ],
             'tests/test_data/tdbs/tdb3': [
-                ('illeGal patt(a)[b*].txt.gz', 'illeGal_patt_a_b__name_rep3.txt.gz'),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b__name_rep2.txt'),
+                ('illeGal patt(a)[b*].txt.gz', 'illeGal_patt_a_b__name_rep3.txt.gz'),
             ]
         }
 
@@ -188,8 +188,8 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         
         retC_keepFirst_expects = {
             'tests/test_data/tdbs/tdb1': [
-                ('filE2.faa.xz', None),
                 ('file1.txt', None),
+                ('filE2.faa.xz', None),
                 ('file3.faa.xz', None),
                 ('file4.aa.xz', None),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
@@ -202,21 +202,21 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         }
         retC_keepAll_expects = {
             'tests/test_data/tdbs/tdb1': [
-                ('filE2.faa.xz', None),
                 ('file1.txt', None),
+                ('filE2.faa.xz', None),
                 ('file2.fna.xz', 'file2_name_rep1.fna.xz'),
                 ('file3.faa.xz', None),
                 ('file4.aa.xz', None),
                 ('illegal patt(a)[b*].txt', 'illegal_patt_a_b_.txt'),
             ],
             'tests/test_data/tdbs/tdb2': [
-                ('FIle4.aa.gz', 'FIle4_name_rep1.aa.gz'),
                 ('file3.fna.gz', 'file3_name_rep1.fna.gz'),
+                ('FIle4.aa.gz', 'FIle4_name_rep1.aa.gz'),
                 ('file5.fna.gz', None),
             ],
             'tests/test_data/tdbs/tdb3': [
-                ('illeGal patt(a)[b*].txt.gz', 'illeGal_patt_a_b__name_rep1.txt.gz'),
-                ('illegal patt(a)[b*].txt', 'illegal_patt_a_b__name_rep2.txt'),
+                ('illegal patt(a)[b*].txt', 'illegal_patt_a_b__name_rep1.txt'),
+                ('illeGal patt(a)[b*].txt.gz', 'illeGal_patt_a_b__name_rep2.txt.gz'),
             ]
         }
         for p in retC:
@@ -259,9 +259,9 @@ class Test_check_safe_combine_databases(unittest.TestCase):
             'file3_name_rep1.fna.gz',
             'file4.aa.xz',
             'file5.fna.gz',
-            'illeGal_patt_a_b__name_rep1.txt.gz',
+            'illeGal_patt_a_b__name_rep2.txt.gz',
             'illegal_patt_a_b_.txt',
-            'illegal_patt_a_b__name_rep2.txt'
+            'illegal_patt_a_b__name_rep1.txt'
         ]
         combinedDirFiles_ka = sorted(os.listdir(combinedDatabaseTarget_ka))
         self.assertListEqual(combinedDirFiles_ka, expectFiles_ka, combinedDirFiles_ka)
