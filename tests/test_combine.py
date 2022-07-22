@@ -113,7 +113,7 @@ class Test_check_safe_combine_databases(unittest.TestCase):
                 "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
                     '\t\t--> (no change) filE2.faa.xz',
                 "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
-                    '\t\t--> file2_name_rep1.faa.xz',
+                    '\t\t--> file2_name_rep1.fna.xz',
                 "\ttests/test_data/tdbs/tdb2/filE2.faa.xz",
                     '\t\t--> filE2_name_rep2.faa.xz',
             "Found duplicated name illegal_patt_a_b_:",
@@ -124,7 +124,7 @@ class Test_check_safe_combine_databases(unittest.TestCase):
                 "\ttests/test_data/tdbs/tdb3/illegal patt(a)[b*].txt",
                     "\t\t--> illegal_patt_a_b__name_rep2.txt",
                 "\ttests/test_data/tdbs/tdb3/illeGal patt(a)[b*].txt.gz",
-                    "\t\t--> illegal_patt_a_b__name_rep3.txt",
+                    "\t\t--> illeGal_patt_a_b__name_rep3.txt.gz",
             "Found 2 none unique name(s), 4 unique one(s).",
             "Total checked files: 9",
         ]
@@ -179,8 +179,15 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         self.assertEqual(retB.keys(), inputB.keys())
         for p in retB:
             self.assertListEqual(retB[p], retB_keepFirst_expects[p], retB)
-        
+ 
+        mock_stdout.seek(0)
+        mock_stdout.truncate(0)
         retB_ka = checkDup(inputB, keep='all')
+        linesB_ka = mock_stdout.getvalue().strip().split('\n')
+        for exp in outputB_ka_expects:
+            self.assertIn(exp, linesB_ka)
+            linesB_ka.remove(exp)
+        self.assertEqual(len(linesB_ka), 0, linesB_ka)
         for p in retB_ka:
             self.assertListEqual(retB_ka[p], retB_keepAll_expects[p], retB_ka)
 
