@@ -48,11 +48,11 @@ def splitExt(n):
 
 
 def checkDup(
-    dictOfCorrNames: dict[str, list[tuple[str, None|str]]],
+    corrPathNames_in: dict[str, list[tuple[str, None|str]]],
     keep='first'
 ) -> dict[str, list[tuple[str, None|str]]]:
 
-    corrPathNames: dict[str, list[tuple[str, None|str]]] = {}
+    corrPathNames_out: dict[str, list[tuple[str, None|str]]] = {}
     uniqueNames: set[str] = set() # track all unique names
     noneUnique: set[str] = set() # track none unique names
     allNames: set[str] = set() # track all names, with suffix added to the none unique ones
@@ -60,11 +60,11 @@ def checkDup(
     noneUniquePrefix = '_name_rep'
     hasAssignedChecker = re.compile(noneUniquePrefix+r'\d+$')
 
-    for p, corrNames in dictOfCorrNames.items():
-        corrPathNames[p] = []
-        count += len(corrNames)
+    for p, corrNames_in in corrPathNames_in.items():
+        corrPathNames_out[p] = []
+        count += len(corrNames_in)
 
-        for fn0, fn1 in corrNames: 
+        for fn0, fn1 in corrNames_in: 
             fn = (fn0 if fn1 is None else fn1)
             name, ext = splitExt(fn)
             uniqueNames.add(name.lower())
@@ -90,19 +90,28 @@ def checkDup(
                 corrName = name+ext
 
             if keep == 'all' or isUnique:
-                corrPathNames[p].append((fn0, corrName))
+                corrPathNames_out[p].append((fn0, corrName))
             else: # keep == 'first' and not isUnique
                 pass
-        corrPathNames[p].sort(key=lambda x:x[0].lower())
+                #print(f'File {os.path.join(p, fn0)} will be excluded.')
+        corrPathNames_out[p].sort(key=lambda x:x[0].lower())
 
     sortedNoneUnique = sorted(list(noneUnique))
     dups: dict[str, list[tuple[str, str, str|None]]] = {}
-    for p, corrNames in dictOfCorrNames.items():
+    for p, corrNames_in in corrPathNames_in.items():
         for nn in sortedNoneUnique:
-            for n0, n1 in corrNames:
-                nx, _ = splitExt(n0)
-                ny, _ = splitExt(n1)
-                if nn in [nx.lower(), (None if ny is None else ny.lower())]:
+            for n0, n1 in corrNames_in:
+                nx = splitExt(n0)[0].lower()
+                ny = splitExt(n1)[0]
+                ny = (ny if ny is None else ny.lower())
+                if nn in [nx, ny]:
+                    isIncluded = False
+                    for n0_o, n1_o in corrPathNames_out[p]:
+                        if n0 == n0_o:
+                            isIncluded = True
+                            n1 = (n0 if n1_o is None else n1_o)
+                            break
+                    if not isIncluded: n1 = None
                     if nn not in dups:
                         dups[nn] = [(p, n0, n1)]
                     else: dups[nn].append((p, n0, n1))
@@ -111,17 +120,22 @@ def checkDup(
         print(f'Found duplicated name {dup}:')
         for p, n0, n1 in itemlist:
             print('\t'+os.path.join(p, n0))
-            if not n1 is None:
-                print('\t\t'+os.path.join(p, n1))
+            if n1 is None:
+                print('\t\t!!Will be EXCLUDED!!')
+            else:
+                if n1 == n0:
+                    print('\t\t--> (no change) '+n1)
+                else:
+                    print('\t\t--> '+n1)
 
     if len(noneUnique) == 0:
         print('No possible duplication found in dir(s):')
-        print('\t'+'\n'.join(dictOfCorrNames.keys()))
+        print('\t'+'\n'.join(corrPathNames_in.keys()))
     else:
         print(f'Found {len(dups)} none unique name(s), {len(uniqueNames)} unique one(s).')
     print(f'Total checked files: {count}\n')
 
-    return corrPathNames
+    return corrPathNames_out
 
     
 def checkCombine(

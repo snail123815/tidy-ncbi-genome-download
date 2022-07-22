@@ -17,11 +17,6 @@ argParser = namedtuple(
 combinedDatabaseTarget = 'tests/test_data/combined'
 combinedDatabaseTarget_ka = 'tests/test_data/combined_ka'
 
-@patch('sys.stdout', new_callable=StringIO)
-def get_print(func: Callable, input, mock_stdout) -> tuple[str, Any]:
-    ret = func(input)
-    return mock_stdout.getvalue().strip(), ret
-
 class Test_check_safe_combine_databases(unittest.TestCase):
     
     @classmethod
@@ -56,7 +51,8 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         self.assertTupleEqual(splitExt(None), (None, None))
     
 
-    def test_checkDup(self):
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_checkDup(self, mock_stdout):
         inputA = {
             'tests/test_data/tdbs/tdb1': [
                 ('file1.txt', None),
@@ -69,7 +65,9 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         outputA_expects = [
             "Found duplicated name file2:",
                 "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
+                    '\t\t--> (no change) filE2.faa.xz',
                 "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
+                    '\t\t!!Will be EXCLUDED!!',
             "Found 1 none unique name(s), 4 unique one(s).",
             "Total checked files: 5",
         ]
@@ -93,17 +91,40 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         outputB_expects = [
             "Found duplicated name file2:",
                 "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
+                    '\t\t--> (no change) filE2.faa.xz',
                 "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
+                    '\t\t!!Will be EXCLUDED!!',
                 "\ttests/test_data/tdbs/tdb2/filE2.faa.xz",
+                    '\t\t!!Will be EXCLUDED!!',
             "Found duplicated name illegal_patt_a_b_:",
                 "\ttests/test_data/tdbs/tdb1/illegal patt(a)[b*].txt",
-                    "\t\ttests/test_data/tdbs/tdb1/illegal_patt_a_b_.txt",
+                    "\t\t--> illegal_patt_a_b_.txt",
                 "\ttests/test_data/tdbs/tdb2/illegal patt(a)[b*].txt",
-                    "\t\ttests/test_data/tdbs/tdb2/illegal_patt_a_b_.txt",
+                    '\t\t!!Will be EXCLUDED!!',
                 "\ttests/test_data/tdbs/tdb3/illegal patt(a)[b*].txt",
-                    "\t\ttests/test_data/tdbs/tdb3/illegal_patt_a_b_.txt",
+                    '\t\t!!Will be EXCLUDED!!',
                 "\ttests/test_data/tdbs/tdb3/illeGal patt(a)[b*].txt.gz",
-                    "\t\ttests/test_data/tdbs/tdb3/illeGal_patt_a_b_.txt.gz",
+                    '\t\t!!Will be EXCLUDED!!',
+            "Found 2 none unique name(s), 4 unique one(s).",
+            "Total checked files: 9",
+        ]
+        outputB_ka_expects = [
+            "Found duplicated name file2:",
+                "\ttests/test_data/tdbs/tdb1/filE2.faa.xz",
+                    '\t\t--> (no change) filE2.faa.xz',
+                "\ttests/test_data/tdbs/tdb1/file2.fna.xz",
+                    '\t\t--> file2_name_rep1.faa.xz',
+                "\ttests/test_data/tdbs/tdb2/filE2.faa.xz",
+                    '\t\t--> filE2_name_rep2.faa.xz',
+            "Found duplicated name illegal_patt_a_b_:",
+                "\ttests/test_data/tdbs/tdb1/illegal patt(a)[b*].txt",
+                    "\t\t--> illegal_patt_a_b_.txt",
+                "\ttests/test_data/tdbs/tdb2/illegal patt(a)[b*].txt",
+                    "\t\t--> illegal_patt_a_b__name_rep1.txt",
+                "\ttests/test_data/tdbs/tdb3/illegal patt(a)[b*].txt",
+                    "\t\t--> illegal_patt_a_b__name_rep2.txt",
+                "\ttests/test_data/tdbs/tdb3/illeGal patt(a)[b*].txt.gz",
+                    "\t\t--> illegal_patt_a_b__name_rep3.txt",
             "Found 2 none unique name(s), 4 unique one(s).",
             "Total checked files: 9",
         ]
@@ -138,16 +159,18 @@ class Test_check_safe_combine_databases(unittest.TestCase):
             ]
         }
 
-        outputA, retA = get_print(checkDup, inputA)
-        linesA = outputA.split('\n')
+        retA = checkDup(inputA)
+        linesA = mock_stdout.getvalue().strip().split('\n')
         for exp in outputA_expects:
             self.assertIn(exp, linesA)
             linesA.remove(exp)
         self.assertEqual(len(linesA), 0, linesA)
         self.assertEqual(retA.keys(), inputA.keys())
 
-        outputB, retB = get_print(checkDup, inputB)
-        linesB = outputB.split('\n')
+        mock_stdout.seek(0)
+        mock_stdout.truncate(0)
+        retB = checkDup(inputB)
+        linesB = mock_stdout.getvalue().strip().split('\n')
         for exp in outputB_expects:
             self.assertIn(exp, linesB)
             linesB.remove(exp)
@@ -157,13 +180,20 @@ class Test_check_safe_combine_databases(unittest.TestCase):
         for p in retB:
             self.assertListEqual(retB[p], retB_keepFirst_expects[p], retB)
         
-        retB_ka = checkDup(inputB, keep="all")
+        retB_ka = checkDup(inputB, keep='all')
         for p in retB_ka:
             self.assertListEqual(retB_ka[p], retB_keepAll_expects[p], retB_ka)
 
-    def test_checkCombine(self):
-        outputC, retC = get_print(checkCombine, ['tests/test_data/tdbs/tdb1', 'tests/test_data/tdbs/tdb2', 'tests/test_data/tdbs/tdb3'])
-        linesC = outputC.split('\n')
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_checkCombine(self, mock_stdout):
+        retC = checkCombine(
+            [
+                'tests/test_data/tdbs/tdb1',
+                'tests/test_data/tdbs/tdb2',
+                'tests/test_data/tdbs/tdb3'
+            ]
+        )
+        linesC = mock_stdout.getvalue().strip().split('\n')
         outputC_expects = [
             'Checking dirs as combined:'
         ]
