@@ -31,6 +31,7 @@ jobs:
       - name: Run test
         run: |
           coverage run --parallel-mode -m unittest 
+          coverage combine
           coverage xml
       - name: Upload report to Codecov
         uses: codecov/codecov-action@v3
