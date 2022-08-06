@@ -30,7 +30,7 @@ jobs:
         run: pip3 install pandas tqdm coverage
       - name: Run test
         run: |
-          coverage run --paralel-mode -m unittest 
+          coverage run --parallel-mode -m unittest 
           coverage xml
       - name: Upload report to Codecov
         uses: codecov/codecov-action@v3
