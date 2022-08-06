@@ -11,7 +11,7 @@ on:
 
 
 jobs:
-  unit-test-tidy:
+  unittest:
     runs-on: ubuntu-latest
     
     strategy:
@@ -30,7 +30,9 @@ jobs:
         run: pip3 install pandas tqdm coverage
       - name: Run test
         run: |
-          coverage run -m unittest tests/test_tidy.py
-          coverage report
+          coverage run --paralel-mode -m unittest 
           coverage xml
-          coverage html
+      - name: Upload report to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml

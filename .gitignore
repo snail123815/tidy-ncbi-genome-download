@@ -4,3 +4,5 @@ elink.dtd
 test_output
 .DS_store
 *.swp
+.coverage
+coverage.xml
