@@ -2,9 +2,11 @@
 
 [![codecov](https://codecov.io/gh/snail123815/tidy-ncbi-genome-download/branch/main/graph/badge.svg?token=1MHRVD759X)](https://codecov.io/gh/snail123815/tidy-ncbi-genome-download)
 
-This is a tool set after downloading genomes from NCBI using [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)
+This is a tool set dealing with downloaded genomes from NCBI using [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download).
 
-Download target genomes from NCBI.
+The purpose of these tools is to connect *semi-automatically* to downstream tools. For example [phylophlan](https://github.com/biobakery/phylophlan) and [mashtree](https://github.com/biobakery/phylophlan), which needs a set of genome files in one folder, uses the file names in their output, and raises error if there are unaccepted characters (eg. `(` or space) in file names.
+
+## Download target genomes from NCBI.
 
 ```shell
 ncbi-genome-download -F genbank -g "Streptomyces,Kitasatospora" -H -p 10 -r 3 -m ncbiftp-Streptomyces-Kitasatospora-gbk.tsv -o ncbiftp-Streptomyces-Kitasatospora-gbk bacteria
