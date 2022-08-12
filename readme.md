@@ -4,9 +4,11 @@
 
 This is a tool set dealing with downloaded genomes from NCBI using [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download).
 
-The purpose of these tools is to connect *semi-automatically* to downstream tools. For example [phylophlan](https://github.com/biobakery/phylophlan) and [mashtree](https://github.com/biobakery/phylophlan), which needs a set of genome files in one folder, uses the file names in their output, and raises error if there are unaccepted characters (eg. `(` or space) in file names.
+The purpose of these tools is to connect *semi-automatically* to downstream tools. For example [phylophlan](https://github.com/biobakery/phylophlan) and [mashtree](https://github.com/biobakery/phylophlan), which needs a set of genome files in one folder, uses the file names in their output, and raises error if there are rnaccepted characters (eg. `(` or space, regexp = `[ _:,();{}+*'\"[\]\/\t\n]+`) in file names.
 
 ## Download target genomes from NCBI.
+
+Please refer to [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download) and download genomes of interest with `-m` switch (`--metadata-table`). Example:
 
 ```shell
 ncbi-genome-download -F genbank -g "Streptomyces,Kitasatospora" -H -p 10 -r 3 -m ncbiftp-Streptomyces-Kitasatospora-gbk.tsv -o ncbiftp-Streptomyces-Kitasatospora-gbk bacteria
@@ -15,8 +17,6 @@ ncbi-genome-download -F genbank -g "Streptomyces,Kitasatospora" -H -p 10 -r 3 -m
 Support download using `-F genbank/fasta/protein-fasta`. The `-m` switch (`--metadata-table`) is required. The `-H` switch is optional,
 
 ## `gather_assemblies.py`
-
-Note please skip `--maxCtg` when protein fasta files are downloaded.
 
 ```
 usage: gather_assemblies.py [-h] [--excludeList EXCLUDELIST] [--maxCtg MAXCTG] [--targetDir TARGETDIR] tsv dir
@@ -34,9 +34,31 @@ options:
                         Valid assemblies will be copied to this directory.
 ```
 
+Check the information in the `.tsv` file, parse strain names from the file, remove duplicated genome for single strain, change file name to the species + strain name format (eg. "Streptomyces_coelicolor_A3_2_ICSSB_1010.fna.gz"). If `--macCtg` option is set, also checks the number of sequences in each downloaded genome, discard those genomes with more than this number of contigs.
+
+Note you can NOT set `--maxCtg` when protein fasta files are downloaded (since each protein is a single sequence that is counted as one 'contig').
+
+A exclusion list can be set for known duplicates of strains. The exclusion list is a text file of tab delimited table. First column is the name of the strain, second column is the accession to be excluded:
+
+| strain                                   | accession       |
+| ---------------------------------------- | --------------- |
+| Streptomyces coelicolor M1154            |                 |
+| Streptomyces coelicolor A3(2) R4-mCherry |                 |
+|                                          | GCF_001013905.1 |
+
+The file will look like:
+
+```tsv
+Streptomyces coelicolor M1154
+Streptomyces coelicolor A3(2) R4-mCherry
+[tab]GCF_001013905.1 
+```
+
+Note the program will try to match both accession and strain name if they are both set in the same line.
+
 ## `check_combine.py` and `combine_database.py`
 
-Check file names validity if we want to combine from other sources.
+Check file names validity if we want to combine from other sources:
 
 ```
 usage: check_combine.py [-h] p [p ...]
@@ -48,7 +70,9 @@ options:
   -h, --help   show this help message and exit
 ```
 
-Do the actual combining.
+The program will first change the file names to "safe names" and then check if there are duplicated files in all directories. Then it will print out the checking result.
+
+After you have checked the possible operation, do the actual combining:
 
 ```
 usage: combine_database.py [-h] [-t T] [--keep KEEP] p [p ...]
