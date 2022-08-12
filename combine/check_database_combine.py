@@ -4,7 +4,6 @@
 # - File name safety, make sure there is no illegal characters, using the function safeName
 
 import os
-import argparse
 import re
 from typing import overload, Literal
 from tidy import safeName
@@ -132,7 +131,8 @@ def checkDup(
         print('No possible duplication found in dir(s):')
         print('\t'+'\n'.join(corrPathNames_in.keys()))
     else:
-        print(f'Found {len(dups)} none unique name(s), {len(uniqueNames)} unique one(s).')
+        print(f'Found {len(dups)} none unique name(s), ' + \
+            f'{len(uniqueNames)} unique one(s).')
     print(f'Total checked files: {count}\n')
 
     return corrPathNames_out
