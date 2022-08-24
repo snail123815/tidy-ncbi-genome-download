@@ -14,7 +14,11 @@ Please refer to [ncbi-genome-download](https://github.com/kblin/ncbi-genome-down
 ncbi-genome-download -F genbank -g "Streptomyces,Kitasatospora" -H -p 10 -r 3 -m ncbiftp-Streptomyces-Kitasatospora-gbk.tsv -o ncbiftp-Streptomyces-Kitasatospora-gbk bacteria
 ```
 
-Support download using `-F genbank/fasta/protein-fasta`. The `-m` switch (`--metadata-table`) is required. The `-H` switch is optional,
+Support download using `-F genbank/fasta/protein-fasta`.
+
+The `-m` switch (`--metadata-table`) is required.
+
+The `-H` switch is optional,
 
 ## `gather_assemblies.py`
 
@@ -34,7 +38,7 @@ options:
                         Valid assemblies will be copied to this directory.
 ```
 
-Check the information in the `.tsv` file, parse strain names from the file, remove duplicated genome for single strain, change file name to the species + strain name format (eg. "Streptomyces_coelicolor_A3_2_ICSSB_1010.fna.gz"). If `--macCtg` option is set, also checks the number of sequences in each downloaded genome, discard those genomes with more than this number of contigs.
+This script checks the information in the `.tsv` file, parse strain names from the file, remove duplicated genome for single strain, change file name to the species + strain name format (eg. "Streptomyces_coelicolor_A3_2_ICSSB_1010.fna.gz"). If `--macCtg` option is set, also checks the number of sequences in each downloaded genome, discard those genomes with more than this number of contigs.
 
 Note you can NOT set `--maxCtg` when protein fasta files are downloaded (since each protein is a single sequence that is counted as one 'contig').
 
@@ -58,7 +62,7 @@ Note the program will try to match both accession and strain name if they are bo
 
 ## `check_combine.py` and `combine_database.py`
 
-Check file names validity if we want to combine from other sources:
+These two scripts check validity of file names if we want to combine database from other sources (combine a folder with another or many others) :
 
 ```
 usage: check_combine.py [-h] p [p ...]
@@ -70,7 +74,7 @@ options:
   -h, --help   show this help message and exit
 ```
 
-The program will first change the file names to "safe names" and then check if there are duplicated files in all directories. Then it will print out the checking result.
+The script will first change the file names to "safe names" and then check if there are duplicated files in all directories. Then it will print out the checking result.
 
 After you have checked the possible operation, do the actual combining:
 
